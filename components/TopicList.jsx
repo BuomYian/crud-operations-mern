@@ -11,9 +11,9 @@ export default function TopicList() {
           <h2 className="font-bold text-2xl">Topic Title</h2>
           <div>Topic Description</div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2" title="delete">
           <RemoveBtn />
-          <Link href={"/editTopic/123"}>
+          <Link href={"/editTopic/123"} title="edit">
             <HiPencilAlt size={24} />
           </Link>
         </div>
