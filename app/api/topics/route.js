@@ -2,27 +2,60 @@ import connectMongoDB from "@/libs/mongodb";
 import Topic from "@/models/topic";
 import { NextResponse } from "next/server";
 
-export async function POST(res) {
-  const { title, description } = await res.json();
-  await connectMongoDB();
-  await Topic.create({ title, description });
-  return NextResponse.json({ message: "Topic Createed" }, { status: 201 });
+// Creating a topic
+export async function POST(req) {
+  try {
+    const { title, description } = await req.json(); // Parsing JSON payload
+
+    await connectMongoDB();
+
+    const topic = await Topic.create({ title, description });
+
+    return new Response(JSON.stringify({ message: "Topic created", topic }), {
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        message: "Internal Server Error",
+        error: error.message,
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
 }
 
+// Getting all the topics
 export async function GET() {
-  await connectMongoDB();
-  const topics = await Topic.find();
-  return NextResponse.json({ topics });
+  try {
+    await connectMongoDB();
+
+    const topics = await Topic.find();
+
+    return new Response(JSON.stringify({ topics }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        message: "Internal Server Error",
+        error: error.message,
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
 }
 
-// export async function DELETE(req, res) {
-//   const id = res.nextUrl.searchParams.get("id");
-//   await connectMongoDB();
-//   await Topic.findByIdAndDelete(id);
-//   return NextResponse.json({ message: "Topic deleted" }, { status: 200 });
-// }
-
-export default async function handler(req, res) {
+// Deleting a topic
+export async function handler(req, res) {
   // Ensure it's a DELETE request
   if (req.method !== "DELETE") {
     return res.status(405).json({ message: "Method Not Allowed" });
